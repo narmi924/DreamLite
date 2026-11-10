@@ -3,7 +3,8 @@
 <div align="center">
 
 
-<!-- [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Weights-DreamLite-yellow)](https://huggingface.co/ByteVisionLab/DreamLite)&nbsp; -->
+[![Base Weights](https://img.shields.io/badge/%F0%9F%A4%97%20Weights-Base-yellow)](https://huggingface.co/carlofkl/DreamLite-base)&nbsp;
+[![Mobile Weights](https://img.shields.io/badge/%F0%9F%A4%97%20Weights-Mobile-yellow)](https://huggingface.co/carlofkl/DreamLite-mobile)&nbsp;
 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/carlofkl/DreamLite)
 [![Paper](https://img.shields.io/badge/Paper-DreamLite-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2603.28713)&nbsp;
 [![Project Page](https://img.shields.io/badge/Project_page-More_visualizations-green?logo=bytedance)](https://carlofkl.github.io/dreamlite/)&nbsp;
@@ -85,7 +86,25 @@ conda activate dreamlite
 pip install -r requirements.txt
 ```
 
-Ensure the model weights (DreamLite-base and DreamLite-mobile) are placed in the following directory structure:
+### Model weights and branches
+
+Download the weights from [DreamLite-base](https://huggingface.co/carlofkl/DreamLite-base) (28 steps) or [DreamLite-mobile](https://huggingface.co/carlofkl/DreamLite-mobile) (4 steps). Both model repositories have two branches, each corresponding to a different inference implementation:
+
+| Inference implementation | Hugging Face weight branch | Base weights | Mobile weights |
+| --- | --- | --- | --- |
+| This repository: `from dreamlite import ...`, including `infer.py` and `infer_mobile.py` | `main` | [Base / main](https://huggingface.co/carlofkl/DreamLite-base/tree/main) | [Mobile / main](https://huggingface.co/carlofkl/DreamLite-mobile/tree/main) |
+| Official Diffusers: `from diffusers import ...` | `diffusers` (`revision="diffusers"`) | [Base / diffusers](https://huggingface.co/carlofkl/DreamLite-base/tree/diffusers) | [Mobile / diffusers](https://huggingface.co/carlofkl/DreamLite-mobile/tree/diffusers) |
+
+The branches use different model configurations and module paths. Choose the branch that matches your inference code, and keep downloads from the two branches in separate directories.
+
+For this repository's CLI scripts, download the `main` branch:
+
+```bash
+hf download carlofkl/DreamLite-base --revision main --local-dir models/DreamLite-base
+hf download carlofkl/DreamLite-mobile --revision main --local-dir models/DreamLite-mobile
+```
+
+The scripts use the following local paths by default:
 ```
 DreamLite/
 ├── models/
@@ -101,24 +120,14 @@ DreamLite has been merged into the official [🤗 Diffusers](https://github.com/
 pip install git+https://github.com/huggingface/diffusers.git
 ```
 
-Model weights are hosted on the **`diffusers` branch** of the following Hugging Face repos:
-- [`carlofkl/DreamLite-base`](https://huggingface.co/carlofkl/DreamLite-base/tree/diffusers) (28-step, high fidelity)
-- [`carlofkl/DreamLite-mobile`](https://huggingface.co/carlofkl/DreamLite-mobile/tree/diffusers) (4-step, ultra fast)
+Use the **`diffusers` weight branch** listed above. `from_pretrained(..., revision="diffusers")` automatically downloads this branch on first use. For Base, import `DreamLitePipeline`; for Mobile, import `DreamLiteMobilePipeline`.
 
-Access is currently gated — please first request access via the [Access Request Form](https://forms.gle/XLhhgxV2PUQw3vvD7). Once approved, you will receive a Hugging Face access **token** from us. Use this token to login locally:
+Alternatively, pre-download the Diffusers weights into separate local directories:
 ```bash
-huggingface-cli login   # paste the token we sent you when prompted
-# or non-interactively:
-huggingface-cli login --token <TOKEN>
+hf download carlofkl/DreamLite-base --revision diffusers --local-dir models/DreamLite-base-diffusers
+hf download carlofkl/DreamLite-mobile --revision diffusers --local-dir models/DreamLite-mobile-diffusers
 ```
-`from_pretrained(..., revision="diffusers")` will then automatically download the weights on first use.
-
-Alternatively, you can pre-download the weights with the CLI using the same token:
-```bash
-hf download carlofkl/DreamLite-base   --revision diffusers --local-dir models/DreamLite-base   --token <TOKEN>
-hf download carlofkl/DreamLite-mobile --revision diffusers --local-dir models/DreamLite-mobile --token <TOKEN>
-```
-and then load from the local path: `DreamLitePipeline.from_pretrained("models/DreamLite-base", torch_dtype=dtype)`.
+Then load from the corresponding local path, for example: `DreamLitePipeline.from_pretrained("models/DreamLite-base-diffusers", torch_dtype=dtype)`.
 
 Then you can load and run DreamLite with just a few lines of code:
 
@@ -155,7 +164,7 @@ edited.save("dreamlite_i2i.png")
 ```
 
 ### 3. Inference via CLI
-You can readily generate or edit images utilizing our provided command-line interfaces.
+These scripts import the local `dreamlite` package and use the **`main` weight branch** downloaded in Section 1.
 ```bash
 # ==========================================
 # DreamLite-base: 28 Steps (High Fidelity)
@@ -222,8 +231,7 @@ python tools/app.py
 ## 🤗 Checkpoints
 We offer two distinct variants of the DreamLite model to provide an optimal balance between visual fidelity and on-device inference latency.
 
-> [!NOTE]
-> **Model Access:** Model weights are currently undergoing safety review. To request access, please fill out our [**Access Request Form**](https://forms.gle/XLhhgxV2PUQw3vvD7).
+Weights are available on Hugging Face: [DreamLite-base](https://huggingface.co/carlofkl/DreamLite-base) and [DreamLite-mobile](https://huggingface.co/carlofkl/DreamLite-mobile). See [Model weights and branches](#model-weights-and-branches) to choose the branch for your inference code.
 
 ⚠️ **Important Usage and Compliance Notice**:
 By accessing and using these models, you agree to abide by our ethical guidelines. These models are for ***non-commercial, research-only*** use. You must ***NOT*** use them to generate, edit, or distribute any content that is sexually explicit, pornographic, violent, discriminatory, or otherwise illegal. Commercial use and public redistribution of the model weights are strictly prohibited.
@@ -236,7 +244,7 @@ By accessing and using these models, you agree to abide by our ethical guideline
   <th align="center">Resolution</th>
   <th align="center">Steps</th>
   <th align="center">Guidance</th>
-  <!-- <th align="center">Hugging Face Hub</th> -->
+  <th align="center">Hugging Face Hub</th>
 </tr>
 <tr>
   <td><strong>DreamLite (Base)</strong></td>
@@ -244,7 +252,7 @@ By accessing and using these models, you agree to abide by our ethical guideline
   <td align="center">1024×1024</td>
   <td align="center">28</td>
   <td align="left">CFG & IMG_CFG</td>
-  <!-- <td align="center"><a href="https://huggingface.co/carlofkl/DreamLite-base">🤗 Download</a></td> -->
+  <td align="center"><a href="https://huggingface.co/carlofkl/DreamLite-base">🤗 Download</a></td>
 </tr>
 <tr>
   <td><strong>DreamLite (Mobile)</strong></td>
@@ -252,7 +260,7 @@ By accessing and using these models, you agree to abide by our ethical guideline
   <td align="center">1024×1024</td>
   <td align="center">4</td>
   <td align="left">No CFG</td>
-  <!-- <td align="center"><a href="https://huggingface.co/carlofkl/DreamLite-mobile">🤗 Download</a></td> -->
+  <td align="center"><a href="https://huggingface.co/carlofkl/DreamLite-mobile">🤗 Download</a></td>
 </tr>
 <tr>
   <!-- <td><strong>DreamLite-v1.1 (Mobile)</strong></td>
@@ -400,7 +408,7 @@ We sincerely thank the community for extending DreamLite to broader use cases an
 - [X] Release paper on arXiv
 - [X] Release inference code
 - [X] Release LoRA training
-- [ ] Release model weights on HuggingFace
+- [X] Release model weights on HuggingFace
 - [X] Release online demo
 - [X] On-device Deployment Reference
 
